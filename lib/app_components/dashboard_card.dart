@@ -8,28 +8,39 @@ class DashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SelectionArea(
-      child: SizedBox(
-        width: double.infinity,
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: theme.textTheme.titleMedium),
-                Text(
-                  value,
-                  style: theme.textTheme.headlineMedium!.copyWith(
-                    fontWeight: FontWeight.w600,
+    return Center(
+      child: Card(
+          clipBehavior: Clip.hardEdge,
+          color: Colors.white54,
+          child: InkWell(
+            splashColor: Colors.blue.withAlpha(30),
+            onTap: () {
+              print('Card tapped.');
+            },
+            child: Container(
+              width: 300,
+              height: 100,
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(Icons.assessment),
+                    title: Text(title),
+                    subtitle: Text(value),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+          )
+          // child: Column(
+          //   children: <Widget>[
+          //     ListTile(
+          //       leading: const Icon(Icons.assessment),
+          //       title: Text(title),
+          //       subtitle: Text(value),
+          //     ),
+          //   ],
+          // ),
           ),
-        ),
-      ),
     );
   }
 }

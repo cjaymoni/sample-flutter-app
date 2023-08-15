@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sample_report_app/app_components/dashboard_card.dart';
+import 'package:gap/gap.dart';
+import 'package:intersperse/intersperse.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -8,27 +11,32 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
+    const summaryCards = [
+      DashboardCard(title: 'Total Assets', value: '43'),
+      DashboardCard(title: 'Total Chairs', value: '23')
+    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
+        actions: <Widget>[
+          IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/user-profile');
+              },
+              icon: const Icon(Icons.account_circle)),
+        ],
       ),
       body: Center(
-        child: Container(
-          height: 80,
-          width: 150,
-          decoration: BoxDecoration(
-              color: Colors.blue, borderRadius: BorderRadius.circular(10)),
-          child: TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text(
-              'Welcome',
-              style: TextStyle(color: Colors.white, fontSize: 25),
-            ),
-          ),
-        ),
-      ),
+          child: Column(
+        children: [
+          Row(
+            children: summaryCards
+                .map<Widget>((card) => Expanded(child: card))
+                .intersperse(const Gap(16))
+                .toList(),
+          )
+        ],
+      )),
     );
   }
 }
