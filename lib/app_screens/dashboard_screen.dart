@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sample_report_app/app_components/bar_chart.dart';
+import 'package:sample_report_app/app_components/bottom_nav.dart';
 import 'package:sample_report_app/app_components/dashboard_card.dart';
 import 'package:gap/gap.dart';
 import 'package:intersperse/intersperse.dart';
@@ -19,11 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: <Widget>[
-          IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/user-profile');
-              },
-              icon: const Icon(Icons.account_circle)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.account_circle)),
         ],
       ),
       body: Center(
@@ -34,9 +32,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 .map<Widget>((card) => Expanded(child: card))
                 .intersperse(const Gap(16))
                 .toList(),
-          )
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          const Row(children: [
+            Expanded(child: BarChartSample()),
+          ])
         ],
       )),
+      bottomNavigationBar: const BottomNav(),
     );
   }
 }

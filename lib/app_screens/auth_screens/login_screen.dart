@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sample_report_app/app_screens/dashboard_screen.dart';
-import 'package:sample_report_app/app_screens/forgot_password_screen.dart';
-import 'package:sample_report_app/app_screens/register_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sample_report_app/utils/sql_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +13,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+//login logic with SQLHELPer
+  void login(BuildContext context) async {
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    bool isAuthenticated = await SQLHelper.login(email, password);
+
+    if (isAuthenticated) {
+      if (!mounted) return;
+      context.go('/dashboard');
+    } else {
+      // Handle authentication failure, show an error message or something
+    }
+  }
 
   @override
   void dispose() {
@@ -93,11 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) =>
-                                      const ForgotPasswordScreen()));
+                          context.go('/forgot-password');
                         },
                         child: const Text(
                           'Forgot Password',
@@ -115,8 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: TextButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => DashboardScreen()));
+                      login(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Please fill the form')),
@@ -141,8 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => RegisterScreen()));
+                      context.go('/register');
                     },
                     child: const Text(
                       'Register now',

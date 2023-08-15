@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sample_report_app/app_screens/login_screen.dart';
-
-import 'dashboard_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sample_report_app/utils/sql_helper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,6 +15,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController fullNameController = TextEditingController();
+
+  void addNewUser(BuildContext context) async {
+    String email = emailController.text;
+    String password = passwordController.text;
+    String full_name = fullNameController.text;
+    await SQLHelper.createUser(full_name, email, password);
+    if (!mounted) return;
+    context.go('/');
+  }
 
   @override
   void dispose() {
@@ -41,9 +49,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 padding: const EdgeInsets.only(top: 50.0),
                 child: Center(
                   child: SizedBox(
-                    child: Image.asset('asset/images/flutter-logo.png'),
                     width: 200,
                     height: 150,
+                    child: Image.asset('asset/images/flutter-logo.png'),
                   ),
                 )),
             Padding(
@@ -134,8 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: TextButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => DashboardScreen()));
+                    addNewUser(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Please fill the form')),
@@ -160,8 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => LoginScreen()));
+                    context.go('/');
                   },
                   child: const Text(
                     'Login now',
