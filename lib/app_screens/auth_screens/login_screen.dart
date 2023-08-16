@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:sample_report_app/utils/sql_helper.dart';
+
+import '../../main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,16 +19,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
 //login logic with SQLHELPer
   void login(BuildContext context) async {
-    String email = emailController.text;
-    String password = passwordController.text;
+    final authModel = Provider.of<AuthModel>(context, listen: false);
+    try {
+      String email = emailController.text;
+      String password = passwordController.text;
 
-    bool isAuthenticated = await SQLHelper.login(email, password);
+      bool isAuthenticated = await SQLHelper.login(email, password);
 
-    if (isAuthenticated) {
-      if (!mounted) return;
-      context.go('/dashboard');
-    } else {
-      // Handle authentication failure, show an error message or something
+      if (isAuthenticated) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+              const SnackBar(
+                content: Text('Login successful'),
+                duration: Duration(seconds: 2),
+              ),
+            )
+            .closed
+            .then((value) => {context.go('/dashboard'), authModel.login()});
+      } else {
+        // Handle authentication failure, show an error message or something
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error logging in: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 

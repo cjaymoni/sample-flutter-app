@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sample_report_app/app_screens/auth_screens/login_screen.dart';
 import 'package:sample_report_app/utils/sql_helper.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -17,12 +18,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController fullNameController = TextEditingController();
 
   void addNewUser(BuildContext context) async {
-    String email = emailController.text;
-    String password = passwordController.text;
-    String full_name = fullNameController.text;
-    await SQLHelper.createUser(full_name, email, password);
-    if (!mounted) return;
-    context.go('/');
+    try {
+      String email = emailController.text;
+      String password = passwordController.text;
+      String full_name = fullNameController.text;
+      await SQLHelper.createUser(full_name, email, password);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+            const SnackBar(
+              content: Text('User Added successfully'),
+              duration: Duration(seconds: 2),
+            ),
+          )
+          .closed
+          .then((reason) {
+        // Navigate after the SnackBar is closed
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error adding user: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override

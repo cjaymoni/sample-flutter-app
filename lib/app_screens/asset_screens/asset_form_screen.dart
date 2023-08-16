@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:sample_report_app/app_screens/asset_screens/assets_list_screen.dart';
 import 'package:sample_report_app/utils/sql_helper.dart';
 
+import '../../main.dart';
+
 class AssetFormData {
+  final int id;
   final String assetType;
   final String assetName;
   final String assetQuantity;
 
   AssetFormData({
+    required this.id,
     required this.assetType,
     required this.assetName,
     required this.assetQuantity,
@@ -18,7 +24,11 @@ class AssetFormData {
 class AssetForm extends StatefulWidget {
   final AssetFormData? initialData;
   final bool isEditForm;
-  const AssetForm({super.key, this.initialData, required this.isEditForm});
+  const AssetForm({
+    super.key,
+    this.initialData,
+    required this.isEditForm,
+  });
 
   @override
   State<AssetForm> createState() => _AssetFormState();
@@ -26,6 +36,7 @@ class AssetForm extends StatefulWidget {
 
 class _AssetFormState extends State<AssetForm> {
   final _formKey = GlobalKey<FormState>();
+  int assetId = 0;
 
   TextEditingController assetTypeController = TextEditingController();
   TextEditingController assetNameController = TextEditingController();
@@ -38,13 +49,53 @@ class _AssetFormState extends State<AssetForm> {
         int.parse(assetQuantityController.text));
 
     if (!mounted) return;
-    context.go('/asset-list');
+    // context.go('/asset-list');
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+          const SnackBar(
+            content: Text('Asset added successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        )
+        .closed
+        .then((reason) {
+      // Navigate after the SnackBar is closed
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const AssetsList()));
+    });
+  }
+
+  Future<void> _editAsset(BuildContext context) async {
+    try {
+      await SQLHelper.updateAsset(assetId, assetNameController.text,
+          int.parse(assetQuantityController.text), selectedValue);
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      // Show a success message using SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Asset edited successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error editing asset: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      // Handle any errors that might occur during the edit process
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    print(widget.initialData);
     if (widget.initialData != null) {
+      assetId = widget.initialData!.id;
       assetNameController =
           TextEditingController(text: widget.initialData!.assetName);
       assetQuantityController =
@@ -63,6 +114,8 @@ class _AssetFormState extends State<AssetForm> {
 
   @override
   Widget build(BuildContext context) {
+    final authModel = Provider.of<AuthModel>(context);
+
     bool isEditForm = widget.isEditForm;
     List<DropdownMenuItem<String>> menuItems = [
       const DropdownMenuItem(
@@ -70,7 +123,7 @@ class _AssetFormState extends State<AssetForm> {
         child: Text('Furniture'),
       ),
       const DropdownMenuItem(
-        value: 'computer_accessories',
+        value: 'accessories',
         child: Text('Computer Accessories'),
       ),
       const DropdownMenuItem(
@@ -85,8 +138,18 @@ class _AssetFormState extends State<AssetForm> {
             : AppBar(
                 title: const Text('Add Asset'),
                 actions: <Widget>[
-                  IconButton(
-                      onPressed: () {}, icon: const Icon(Icons.account_circle)),
+                  PopupMenuButton(
+                      itemBuilder: (BuildContext context) => [
+                            PopupMenuItem(
+                              child: TextButton(
+                                onPressed: () {
+                                  authModel.logout();
+                                  context.go('/');
+                                },
+                                child: const Text('Logout'),
+                              ),
+                            )
+                          ])
                 ],
               ),
         body: SingleChildScrollView(
@@ -169,26 +232,38 @@ class _AssetFormState extends State<AssetForm> {
               width: 250,
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-              child: TextButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    await _addNewAsset(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please fill the form')),
-                    );
-                  }
-                },
-                child: isEditForm
-                    ? const Text(
+              child: isEditForm
+                  ? TextButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await _editAsset(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please fill the form')),
+                          );
+                        }
+                      },
+                      child: const Text(
                         'Edit Asset',
                         style: TextStyle(color: Colors.white, fontSize: 25),
-                      )
-                    : const Text(
+                      ),
+                    )
+                  : TextButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await _addNewAsset(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please fill the form')),
+                          );
+                        }
+                      },
+                      child: const Text(
                         'Add Asset',
                         style: TextStyle(color: Colors.white, fontSize: 25),
-                      ),
-              ),
+                      )),
             )
           ]),
         )));

@@ -38,6 +38,7 @@ dependencies:
   sqflite: ^2.3.0
   go_router:
   url_strategy:
+  provider:
 
 dev_dependencies:
   flutter_test:

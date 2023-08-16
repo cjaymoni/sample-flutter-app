@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sample_report_app/app_screens/asset_screens/asset_form_screen.dart';
-import 'package:sample_report_app/app_screens/asset_screens/assets_list_screen.dart';
+
+import '../app_screens/asset_screens/assets_list_screen.dart';
 
 class DashboardCard extends StatelessWidget {
-  const DashboardCard({super.key, required this.title, required this.value});
+  DashboardCard({super.key, required this.title, required this.value});
 
   final String title;
   final String value;
@@ -21,8 +21,8 @@ class DashboardCard extends StatelessWidget {
                   context, MaterialPageRoute(builder: (_) => AssetsList()));
             },
             child: Container(
-              width: 300,
-              height: 100,
+              width: 200,
+              height: 75,
               child: Column(
                 children: <Widget>[
                   ListTile(

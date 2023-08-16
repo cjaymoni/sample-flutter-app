@@ -1,41 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sample_report_app/app_screens/asset_screens/asset_form_screen.dart';
-import 'package:sample_report_app/app_screens/asset_screens/assets_list_screen.dart';
-import 'package:sample_report_app/app_screens/auth_screens/forgot_password_screen.dart';
-import 'package:sample_report_app/app_screens/auth_screens/login_screen.dart';
-import 'package:sample_report_app/app_screens/auth_screens/register_screen.dart';
-import 'package:sample_report_app/app_screens/dashboard_screen.dart';
-import 'package:url_strategy/url_strategy.dart';
+
+import 'app_screens/asset_screens/asset_form_screen.dart';
+import 'app_screens/asset_screens/assets_list_screen.dart';
+import 'app_screens/auth_screens/forgot_password_screen.dart';
+import 'app_screens/auth_screens/login_screen.dart';
+import 'app_screens/auth_screens/register_screen.dart';
+import 'package:provider/provider.dart';
+
+import 'app_screens/dashboard_screen.dart';
+import 'app_screens/report_screens/reports_home.dart';
 
 void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) => MaterialApp.router(
-        routerDelegate: _router.routerDelegate,
-        routeInformationProvider: _router.routeInformationProvider,
-        routeInformationParser: _router.routeInformationParser,
-        debugShowCheckedModeBanner: false,
-        title: 'My App',
-        // Use the LoginScreen widget
-      );
-
-  // {
-  //   return const MaterialApp.router(
-  //     routerDelegate: _router,
-  //     debugShowCheckedModeBanner: false,
-  //     title: 'My App',
-  //     home: LoginScreen(),
-  //     // Use the LoginScreen widget
-  //   );
-  // }
-
-  final GoRouter _router = GoRouter(
+  final goRouter = GoRouter(
+    initialLocation: '/',
     routes: <GoRoute>[
       GoRoute(
           routes: const <GoRoute>[],
@@ -59,7 +37,7 @@ class MyApp extends StatelessWidget {
               DashboardScreen()),
       GoRoute(
           routes: const <GoRoute>[],
-          path: '/assets',
+          path: '/asset-list',
           builder: (BuildContext context, GoRouterState state) =>
               const AssetsList()),
       GoRoute(
@@ -76,6 +54,64 @@ class MyApp extends StatelessWidget {
               const AssetForm(
                 isEditForm: true,
               )),
+      GoRoute(
+          routes: const <GoRoute>[],
+          path: '/reports',
+          builder: (BuildContext context, GoRouterState state) =>
+              const ReportsHome()),
     ],
   );
+
+  runApp(ChangeNotifierProvider(
+    create: (context) => AuthModel(),
+    child: MyApp(goRouter: goRouter),
+  ));
+}
+
+class AuthModel extends ChangeNotifier {
+  bool _loggedIn = false;
+
+  bool get loggedIn => _loggedIn;
+
+  void login() {
+    _loggedIn = true;
+    notifyListeners();
+  }
+
+  void logout() {
+    _loggedIn = false;
+    notifyListeners();
+  }
+}
+
+final AuthModel authModel = AuthModel();
+
+class AuthChecker extends StatelessWidget {
+  final Widget child;
+
+  const AuthChecker({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: authModel,
+      builder: (context, child) {
+        return authModel.loggedIn ? child! : const LoginScreen();
+      },
+      child: child,
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  final GoRouter goRouter;
+  const MyApp({super.key, required this.goRouter});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+        routerDelegate: goRouter.routerDelegate,
+        routeInformationProvider: goRouter.routeInformationProvider,
+        routeInformationParser: goRouter.routeInformationParser,
+        title: 'Flutter App with Auth');
+  }
 }
