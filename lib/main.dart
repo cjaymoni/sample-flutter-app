@@ -109,9 +109,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-        routerDelegate: goRouter.routerDelegate,
-        routeInformationProvider: goRouter.routeInformationProvider,
-        routeInformationParser: goRouter.routeInformationParser,
-        title: 'Flutter App with Auth');
+      routerDelegate: goRouter.routerDelegate,
+      routeInformationProvider: goRouter.routeInformationProvider,
+      routeInformationParser: goRouter.routeInformationParser,
+      title: 'Flutter App with Auth',
+      debugShowCheckedModeBanner: false,
+    );
   }
 }

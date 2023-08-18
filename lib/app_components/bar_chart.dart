@@ -13,51 +13,58 @@ class BarChartSample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 300,
-      height: 200,
-      child: BarChart(BarChartData(
-          titlesData: const FlTitlesData(
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                      showTitles: true, getTitlesWidget: getBottomTitleData))),
-          borderData: FlBorderData(
-              border: const Border(
-            top: BorderSide.none,
-            right: BorderSide.none,
-            left: BorderSide(width: 1),
-            bottom: BorderSide(width: 1),
-          )),
-          groupsSpace: 10,
-          gridData: FlGridData(show: false),
+    return Card(
+      color: Colors.blueGrey[50],
+      child: Padding(
+          padding: EdgeInsets.all(14.0),
+          child: Container(
+            width: 300,
+            height: 200,
+            child: BarChart(BarChartData(
+                titlesData: const FlTitlesData(
+                    topTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: getBottomTitleData))),
+                borderData: FlBorderData(
+                    border: const Border(
+                  top: BorderSide.none,
+                  right: BorderSide.none,
+                  left: BorderSide(width: 1),
+                  bottom: BorderSide(width: 1),
+                )),
+                groupsSpace: 10,
+                gridData: FlGridData(show: false),
 
-          //add bars
-          barGroups: [
-            BarChartGroupData(x: 1, barRods: [
-              BarChartRodData(
-                  toY: furnitureData,
-                  width: 15,
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(4)),
-            ]),
-            BarChartGroupData(x: 2, barRods: [
-              BarChartRodData(
-                  toY: accessoriesData,
-                  width: 15,
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(4)),
-            ]),
-            BarChartGroupData(x: 3, barRods: [
-              BarChartRodData(
-                  toY: electronicsData,
-                  width: 15,
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(4)),
-            ]),
-          ])),
+                //add bars
+                barGroups: [
+                  BarChartGroupData(x: 1, barRods: [
+                    BarChartRodData(
+                        toY: furnitureData,
+                        width: 15,
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(4)),
+                  ]),
+                  BarChartGroupData(x: 2, barRods: [
+                    BarChartRodData(
+                        toY: accessoriesData,
+                        width: 15,
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(4)),
+                  ]),
+                  BarChartGroupData(x: 3, barRods: [
+                    BarChartRodData(
+                        toY: electronicsData,
+                        width: 15,
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(4)),
+                  ]),
+                ])),
+          )),
     );
   }
 }
@@ -79,5 +86,5 @@ Widget getBottomTitleData(double value, TitleMeta meta) {
       text = const Text("");
       break;
   }
-  return SideTitleWidget(child: text, axisSide: meta.axisSide);
+  return SideTitleWidget(axisSide: meta.axisSide, child: text);
 }

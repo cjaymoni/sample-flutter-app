@@ -1,45 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:sample_report_app/app_screens/asset_screens/asset_form_screen.dart';
-import 'package:sample_report_app/utils/sql_helper.dart';
 
 import '../../app_components/bottom_nav.dart';
 import '../../main.dart';
+import '../../utils/sql_helper.dart';
+import '../asset_screens/asset_form_screen.dart';
 
-class AssetsList extends StatefulWidget {
-  const AssetsList({super.key});
+class CategoryScreen extends StatefulWidget {
+  final String? header;
+  const CategoryScreen({super.key, this.header});
 
   @override
-  State<AssetsList> createState() => _AssetsListState();
+  State<CategoryScreen> createState() => _CategoryScreenState();
 }
 
-class _AssetsListState extends State<AssetsList> {
+class _CategoryScreenState extends State<CategoryScreen> {
   String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
-
   List<Map<String, dynamic>> _assetsList = [];
-
   bool _isLoading = true;
 
-  //fetch from db
-  Future<void> _fetchAssets() async {
+  String? header;
+
+  Future<void> fetchAssetByCategory() async {
     setState(() {
       _isLoading = true;
     });
     //fetch from db
     final data = await SQLHelper.getAllAssets();
-
     setState(() {
-      _assetsList = data;
       _isLoading = false;
+      _assetsList =
+          data.where((element) => element['asset_type'] == header).toList();
     });
   }
 
-  void _refreshList() {
-    _fetchAssets();
-  }
-
-  //open dialog
   void _showFormDialog(int id) async {
     final assetData = _assetsList.firstWhere((element) => element['id'] == id);
     print(assetData);
@@ -72,7 +66,7 @@ class _AssetsListState extends State<AssetsList> {
         content: Text('Asset deleted successfully'),
         duration: Duration(seconds: 2),
       ));
-      _fetchAssets();
+      fetchAssetByCategory();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -110,7 +104,10 @@ class _AssetsListState extends State<AssetsList> {
   @override
   void initState() {
     super.initState();
-    _fetchAssets(); //fetch the page loads
+    if (widget.header != null) {
+      header = widget.header;
+      fetchAssetByCategory();
+    }
   }
 
   @override
@@ -119,21 +116,7 @@ class _AssetsListState extends State<AssetsList> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assets List'),
-        actions: <Widget>[
-          PopupMenuButton(
-              itemBuilder: (BuildContext context) => [
-                    PopupMenuItem(
-                      child: TextButton(
-                        onPressed: () {
-                          authModel.logout();
-                          context.go('/');
-                        },
-                        child: const Text('Logout'),
-                      ),
-                    )
-                  ])
-        ],
+        title: Text(capitalize(header ?? '')),
       ),
       body: _isLoading
           ? const Center(
@@ -153,8 +136,6 @@ class _AssetsListState extends State<AssetsList> {
                           const SizedBox(
                             width: 10,
                           ),
-                          Text(
-                              'Type: ${capitalize(_assetsList[index]['asset_type'])}'),
                         ],
                       )),
                       trailing: SizedBox(
@@ -172,17 +153,6 @@ class _AssetsListState extends State<AssetsList> {
                       ),
                     ),
                   )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => const AssetForm(
-                        isEditForm: false,
-                      )));
-        },
-        child: const Icon(Icons.add),
-      ),
       bottomNavigationBar: authModel.loggedIn ? const BottomNav() : null,
     );
   }

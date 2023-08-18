@@ -38,7 +38,13 @@ class _LoginScreenState extends State<LoginScreen> {
             .closed
             .then((value) => {context.go('/dashboard'), authModel.login()});
       } else {
-        // Handle authentication failure, show an error message or something
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error logging in, check credentials provided'),
+            duration: Duration(seconds: 2),
+          ),
+        ); // Handle authentication failure, show an error message or something
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
